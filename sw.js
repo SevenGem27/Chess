@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-pwa-v4';
+const CACHE_NAME = 'chess-pwa-v5';
 const urlsToCache = [
   './',
   './index.html',
