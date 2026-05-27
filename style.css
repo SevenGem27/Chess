@@ -123,3 +123,8 @@ input[type="text"], select {
     background-color: #e74c3c;
 }
 .btn-danger:active { background-color: #c0392b; }
+
+/* Blocca lo scroll della pagina SOLO quando si toccano la scacchiera o i pezzi di riserva */
+#myBoard, .chessboard-63f37 {
+    touch-action: none;
+}
