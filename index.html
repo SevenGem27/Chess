@@ -7,7 +7,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     
-    <!-- CSS di Chessboard.js -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
 </head>
 <body>
@@ -15,10 +14,13 @@
     <div class="container">
         <h2>Studio Posizioni</h2>
         
-        <!-- Scacchiera -->
         <div id="myBoard" style="width: 100%"></div>
         
-        <!-- Controlli Base -->
+        <div class="controls-group" style="margin-top: 15px;">
+            <button id="prevBtn" style="background-color: #2980b9; font-weight: bold;" disabled>⬅️ Indietro</button>
+            <button id="nextBtn" style="background-color: #2980b9; font-weight: bold;" disabled>Avanti ➡️</button>
+        </div>
+        
         <div class="controls-group">
             <button id="startBtn">Base</button>
             <button id="clearBtn">Svuota</button>
@@ -27,7 +29,6 @@
 
         <p id="currentFenDisplay" class="fen-text"></p>
 
-        <!-- 1. Caricamento da FEN -->
         <div class="feature-section">
             <label>Carica da stringa FEN</label>
             <div class="input-row">
@@ -36,7 +37,6 @@
             </div>
         </div>
 
-        <!-- 2. Aperture e Puzzle Preimpostati -->
         <div class="feature-section">
             <label>Seleziona un'apertura o finale</label>
             <div class="input-row">
@@ -79,7 +79,6 @@
             </div>
         </div>
 
-        <!-- 3. Database Locale -->
         <div class="feature-section">
             <label>Salva la posizione attuale</label>
             <div class="input-row">
@@ -89,12 +88,10 @@
             
             <h4 style="margin-top: 15px; margin-bottom: 10px; text-align: left; color: #2c3e50;">Posizioni Salvate:</h4>
             <div id="savedPositionsList" class="saved-list">
-                <!-- Qui verranno generate le posizioni salvate -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- JQuery e Chessboard.js -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
     <script src="app.js"></script>
