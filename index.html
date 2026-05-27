@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scacchi Training</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- CSS di Chessboard.js -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Studio Posizioni</h2>
+        
+        <!-- Scacchiera -->
+        <div id="myBoard" style="width: 100%"></div>
+        
+        <!-- Controlli Base -->
+        <div class="controls-group">
+            <button id="startBtn">Base</button>
+            <button id="clearBtn">Svuota</button>
+            <button id="getFenBtn">Estrai FEN</button>
+        </div>
+
+        <p id="currentFenDisplay" class="fen-text"></p>
+
+        <!-- 1. Caricamento da FEN -->
+        <div class="feature-section">
+            <label>Carica da stringa FEN</label>
+            <div class="input-row">
+                <input type="text" id="fenInput" placeholder="Incolla il FEN qui...">
+                <button id="loadFenBtn">Carica</button>
+            </div>
+        </div>
+
+        <!-- 2. Puzzle Preimpostati -->
+        <div class="feature-section">
+            <label>Seleziona un'apertura o puzzle</label>
+            <div class="input-row">
+                <select id="puzzleSelect">
+                    <option value="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3">Partita Spagnola</option>
+                    <option value="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4">Difesa dei Due Cavalli</option>
+                    <option value="rnbqkb1r/pp2pppp/3p1n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5">Difesa Siciliana (Najdorf)</option>
+                    <option value="8/8/8/8/8/4k3/4P3/4K3 w - - 0 1">Finale: Pedone e Re</option>
+                </select>
+                <button id="loadPuzzleBtn">Vai</button>
+            </div>
+        </div>
+
+        <!-- 3. Database Locale -->
+        <div class="feature-section">
+            <label>Salva la posizione attuale</label>
+            <div class="input-row">
+                <input type="text" id="saveNameInput" placeholder="Nome (es. Finale Tattico)...">
+                <button id="savePosBtn">Salva</button>
+            </div>
+            
+            <h4 style="margin-top: 15px; margin-bottom: 10px; text-align: left; color: #2c3e50;">Posizioni Salvate:</h4>
+            <div id="savedPositionsList" class="saved-list">
+                <!-- Qui verranno generate le posizioni salvate -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JQuery e Chessboard.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
