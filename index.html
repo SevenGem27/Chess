@@ -19,6 +19,14 @@
     <div class="container">
         <h2>Studio Posizioni</h2>
         <div id="myBoard" style="width: 100%"></div>
+
+        <div class="engine-panel" style="margin-top: 10px; padding: 10px; background: #fff; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+            <div style="text-align: left;">
+                <div id="evalValue" style="font-size: 18px; font-weight: bold; color: #2c3e50;">Motore spento</div>
+                <div id="bestMoveDisplay" style="font-size: 14px; color: #7f8c8d; min-height: 16px;"></div>
+            </div>
+            <button id="toggleEngineBtn" style="background-color: #27ae60; width: auto; flex-grow: 0;">▶️ Analisi</button>
+        </div>
         
         <div class="controls-group" style="margin-top: 15px;">
             <button id="prevBtn" style="background-color: #2980b9; font-weight: bold;" disabled>⬅️ Indietro</button>

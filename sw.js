@@ -1,10 +1,11 @@
-const CACHE_NAME = 'chess-pwa-v10';
+const CACHE_NAME = 'chess-pwa-v12'; // Cambia versione!
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './stockfish.js' // IL NOSTRO NUOVO MOTORE
 ];
 
 self.addEventListener('install', event => {

@@ -141,6 +141,83 @@ $('#savePosBtn').on('click', function() {
 
 updateSavedList();
 
+// --- 9. MOTORE DI ANALISI (STOCKFISH) ---
+var engine = new Worker('stockfish.js');
+var engineRunning = false;
+
+// Preparazione iniziale del motore (linguaggio UCI)
+engine.postMessage('uci');
+
+// Funzione per richiedere l'analisi della posizione attuale
+function updateEvaluation() {
+    if (!engineRunning) return;
+    
+    $('#evalValue').text('Calcolo in corso...');
+    $('#bestMoveDisplay').text('');
+    
+    // Chessboard.js genera solo la disposizione dei pezzi. 
+    // Aggiungiamo i parametri base del FEN (Tocca al bianco, arrocchi permessi) per far funzionare Stockfish.
+    var fullFen = board.fen() + ' w KQkq - 0 1'; 
+    
+    // Ferma il calcolo precedente e avvia il nuovo
+    engine.postMessage('stop');
+    engine.postMessage('position fen ' + fullFen);
+    engine.postMessage('go depth 15'); // Profondità 15 è un ottimo compromesso tra velocità e precisione su smartphone
+}
+
+// Ascolta le risposte che arrivano dal Web Worker in background
+engine.onmessage = function(event) {
+    var line = event.data;
+    
+    // 1. Estrai la Valutazione Numerica (Centipawns)
+    if (line.indexOf('info depth') !== -1 && line.indexOf('score cp') !== -1) {
+        var match = line.match(/score cp (-?\d+)/);
+        if (match) {
+            var eval = (parseInt(match[1]) / 100).toFixed(2);
+            $('#evalValue').text(eval > 0 ? '+' + eval : eval);
+        }
+    }
+    
+    // 2. Estrai se c'è un Matto forzato
+    if (line.indexOf('info depth') !== -1 && line.indexOf('score mate') !== -1) {
+        var mateMatch = line.match(/score mate (-?\d+)/);
+        if (mateMatch) {
+            var mate = parseInt(mateMatch[1]);
+            $('#evalValue').text('Matto in ' + Math.abs(mate));
+        }
+    }
+    
+    // 3. Estrai la Mossa Migliore suggerita
+    if (line.indexOf('bestmove') !== -1) {
+        var bestMove = line.split(' ')[1];
+        if (bestMove !== '(none)') {
+            $('#bestMoveDisplay').text('Migliore: ' + bestMove);
+        }
+    }
+};
+
+// Bottone Accendi/Spegni
+$('#toggleEngineBtn').on('click', function() {
+    engineRunning = !engineRunning;
+    if (engineRunning) {
+        $(this).text('⏹ Spegni').css('background-color', '#e74c3c');
+        updateEvaluation();
+    } else {
+        $(this).text('▶️ Analisi').css('background-color', '#27ae60');
+        $('#evalValue').text('Motore spento');
+        $('#bestMoveDisplay').text('');
+        engine.postMessage('stop');
+    }
+});
+
+// Fondamentale: Aggiorna l'analisi automaticamente ogni volta che muovi un pezzo
+// Modifichiamo l'evento onChange che avevamo già creato nella "var config" all'inizio del file
+var oldOnChange = config.onChange; // Salviamo la vecchia funzione della cronologia
+config.onChange = function(oldPos, newPos) {
+    if (oldOnChange) oldOnChange(oldPos, newPos); // Eseguiamo la cronologia
+    updateEvaluation(); // E avviamo il calcolo di Stockfish!
+};
+
 // 8. REGISTRAZIONE SERVICE WORKER
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
