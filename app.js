@@ -4,8 +4,7 @@ var config = {
   dropOffBoard: 'trash', 
   sparePieces: true,     
   position: 'start',
-  // Aggiungiamo il percorso per scaricare le immagini dei pezzi online:
-  pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/img/chesspieces/wikipedia/{piece}.png'
+  pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
 };
 
 var board = Chessboard('myBoard', config);
