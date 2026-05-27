@@ -36,15 +36,44 @@
             </div>
         </div>
 
-        <!-- 2. Puzzle Preimpostati -->
+        <!-- 2. Aperture e Puzzle Preimpostati -->
         <div class="feature-section">
-            <label>Seleziona un'apertura o puzzle</label>
+            <label>Seleziona un'apertura o finale</label>
             <div class="input-row">
                 <select id="puzzleSelect">
-                    <option value="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3">Partita Spagnola</option>
-                    <option value="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4">Difesa dei Due Cavalli</option>
-                    <option value="rnbqkb1r/pp2pppp/3p1n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5">Difesa Siciliana (Najdorf)</option>
-                    <option value="8/8/8/8/8/4k3/4P3/4K3 w - - 0 1">Finale: Pedone e Re</option>
+                    <option value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">Posizione Iniziale</option>
+
+                    <optgroup label="Aperture al Re (1. e4)">
+                        <option value="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3">Partita Spagnola (Ruy Lopez)</option>
+                        <option value="r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3">Partita Italiana</option>
+                        <option value="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2">Difesa Siciliana</option>
+                        <option value="rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2">Difesa Francese</option>
+                        <option value="rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2">Difesa Caro-Kann</option>
+                        <option value="r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3">Difesa Philidor</option>
+                        <option value="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4">Difesa dei Due Cavalli</option>
+                    </optgroup>
+
+                    <optgroup label="Aperture alla Donna (1. d4)">
+                        <option value="rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2">Gambetto di Donna</option>
+                        <option value="rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3">Difesa Slava</option>
+                        <option value="rnbqkb1r/pppppp1p/5np1/8/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3">Difesa Est-Indiana</option>
+                        <option value="rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4">Difesa Nimzo-Indiana</option>
+                        <option value="rnbqkb1r/pppp1ppp/4pn2/8/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3">Difesa Ovest-Indiana</option>
+                        <option value="rnbqkbnr/ppp1pp1p/8/3p2p1/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2">Difesa Olandese</option>
+                    </optgroup>
+
+                    <optgroup label="Altre Aperture">
+                        <option value="rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1">Apertura Inglese (1. c4)</option>
+                        <option value="rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 0 1">Apertura Réti (1. Cf3)</option>
+                        <option value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">Sistema London (Base)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Finali di Allenamento">
+                        <option value="8/8/8/8/8/4k3/4P3/4K3 w - - 0 1">Re e Pedone vs Re</option>
+                        <option value="8/8/8/8/8/8/3k4/R3K2R w KQ - 0 1">Matto con Torri (La Scala)</option>
+                        <option value="8/8/8/8/8/3k4/8/Q3K3 w - - 0 1">Re e Donna vs Re</option>
+                        <option value="8/8/8/8/8/3k4/8/R3K3 w - - 0 1">Re e Torre vs Re</option>
+                    </optgroup>
                 </select>
                 <button id="loadPuzzleBtn">Vai</button>
             </div>
