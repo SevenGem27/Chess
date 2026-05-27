@@ -1,15 +1,69 @@
-// 1. Configurazione Scacchiera
+// --- GESTIONE CRONOLOGIA MOSSE ---
+var moveHistory = [];
+var historyIndex = -1;
+var isProgrammatic = false; // Evita loop infiniti quando navighiamo nella cronologia
+
+function updateNavigationButtons() {
+    // Attiva o disattiva i tasti Avanti/Indietro a seconda della posizione attuale
+    $('#prevBtn').prop('disabled', historyIndex <= 0);
+    $('#nextBtn').prop('disabled', historyIndex >= moveHistory.length - 1);
+}
+
+function pushHistory(fen) {
+    if (isProgrammatic) return;
+
+    // Se l'utente era tornato indietro e fa una nuova mossa, cancella il "futuro" precedente
+    if (historyIndex < moveHistory.length - 1) {
+        moveHistory = moveHistory.slice(0, historyIndex + 1);
+    }
+
+    // Evita di registrare due volte lo stesso identico stato di fila
+    if (moveHistory.length > 0 && moveHistory[historyIndex] === fen) return;
+
+    moveHistory.push(fen);
+    historyIndex++;
+    updateNavigationButtons();
+}
+
+// --- 1. Configurazione Scacchiera ---
 var config = {
   draggable: true,
   dropOffBoard: 'trash', 
   sparePieces: true,     
   position: 'start',
-  pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+  pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+  
+  // Questo evento rileva AUTOMATICAMENTE qualsiasi modifica alla scacchiera
+  onChange: function(oldPos, newPos) {
+      var fen = Chessboard.objToFen(newPos);
+      pushHistory(fen);
+  }
 };
 
 var board = Chessboard('myBoard', config);
 
-// 2. Controlli Base
+// --- 2. Logica Tasti Navigazione ---
+$('#prevBtn').on('click', function() {
+    if (historyIndex > 0) {
+        isProgrammatic = true;
+        historyIndex--;
+        board.position(moveHistory[historyIndex], false); // false disabilita le animazioni per sincronia pura
+        isProgrammatic = false;
+        updateNavigationButtons();
+    }
+});
+
+$('#nextBtn').on('click', function() {
+    if (historyIndex < moveHistory.length - 1) {
+        isProgrammatic = true;
+        historyIndex++;
+        board.position(moveHistory[historyIndex], false);
+        isProgrammatic = false;
+        updateNavigationButtons();
+    }
+});
+
+// --- 3. Controlli Base ---
 $('#startBtn').on('click', board.start);
 $('#clearBtn').on('click', board.clear);
 
@@ -18,7 +72,7 @@ $('#getFenBtn').on('click', function() {
     $('#currentFenDisplay').text(currentFen);
 });
 
-// 3. Carica FEN e Puzzle
+// --- 4. Carica FEN e Puzzle ---
 $('#loadFenBtn').on('click', function() {
     var fen = $('#fenInput').val().trim();
     if (fen) {
@@ -33,7 +87,7 @@ $('#loadPuzzleBtn').on('click', function() {
     $('#currentFenDisplay').text(""); 
 });
 
-// 4. DATABASE LOCALE (localStorage)
+// --- 5. DATABASE LOCALE (localStorage) ---
 function updateSavedList() {
     var savedPositions = JSON.parse(localStorage.getItem('chess_positions')) || [];
     var $list = $('#savedPositionsList');
@@ -90,10 +144,9 @@ function deletePosition(index) {
     updateSavedList();
 }
 
-// Inizializza la lista al caricamento della pagina
 updateSavedList();
 
-// 5. Registrazione Service Worker per uso offline (PWA)
+// --- 6. Registrazione Service Worker para PWA ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
