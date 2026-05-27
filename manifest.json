@@ -1,6 +1,6 @@
 {
-  "name": "Scacchi Training",
-  "short_name": "ChessTrain",
+  "name": "ChessAnalyses",
+  "short_name": "ChessAnalyses",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f4f9",
