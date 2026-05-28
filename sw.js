@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-pwa-v14'; // Cambia versione!
+const CACHE_NAME = 'chess-pwa-v15'; // Cambia versione!
 const urlsToCache = [
   './',
   './index.html',
