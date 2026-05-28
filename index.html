@@ -16,11 +16,20 @@
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
         <h2>Strumento di analisi</h2>
         <div id="myBoard" style="width: 100%"></div>
 
-        <div class="engine-panel" style="margin-top: 10px; padding: 10px; background: #fff; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <div id="turn-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 15px; font-family: -apple-system, sans-serif;">
+            <button id="btn-white" onclick="cambiaTurno('w')" style="flex: 1; padding: 10px; font-size: 15px; font-weight: bold; border-radius: 8px; border: 2px solid #007aff; background-color: #ffffff; color: #333; cursor: pointer; transition: 0.2s;">
+                ⚪️ Tocca al Bianco
+            </button>
+            <button id="btn-black" onclick="cambiaTurno('b')" style="flex: 1; padding: 10px; font-size: 15px; font-weight: bold; border-radius: 8px; border: 2px solid #ccc; background-color: #333333; color: #ffffff; opacity: 0.5; cursor: pointer; transition: 0.2s;">
+                ⚫️ Tocca al Nero
+            </button>
+        </div>
+
+        <div class="engine-panel" style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
             <div style="text-align: left;">
                 <div id="evalValue" style="font-size: 18px; font-weight: bold; color: #2c3e50;">Motore spento</div>
                 <div id="bestMoveDisplay" style="font-size: 14px; color: #7f8c8d; min-height: 16px;"></div>
