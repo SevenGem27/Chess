@@ -204,52 +204,79 @@ var engineRunning = false;
 
 engine.postMessage('uci');
 
+// 1. NUOVA LOGICA: Legge la scacchiera e capisce se l'arrocco è fisicamente possibile
+function getCastlingRights() {
+    var pos = board.position();
+    var castling = '';
+    // Il bianco può arroccare solo se il Re è in e1 e ci sono le Torri
+    if (pos['e1'] === 'wK') {
+        if (pos['h1'] === 'wR') castling += 'K';
+        if (pos['a1'] === 'wR') castling += 'Q';
+    }
+    // Il nero può arroccare solo se il Re è in e8 e ci sono le Torri
+    if (pos['e8'] === 'bK') {
+        if (pos['h8'] === 'bR') castling += 'k';
+        if (pos['a8'] === 'bR') castling += 'q';
+    }
+    return castling === '' ? '-' : castling;
+}
+
 function updateEvaluation() {
     if (!engineRunning) return;
     
-    $('#evalValue').text('Calcolo in corso...');
+    // Resetta grafica e testo in attesa del calcolo
+    $('#evalValue').text('Calcolo in corso...').css('color', '#2c3e50');
     $('#bestMoveDisplay').text('');
     
-    // Adesso usiamo la nostra variabile dinamica 'currentTurn' invece di forzare 'w'!
-    var fullFen = board.fen() + ' ' + currentTurn + ' KQkq - 0 1'; 
+    // Costruisce il FEN perfetto, senza allucinazioni
+    var castling = getCastlingRights();
+    var fullFen = board.fen() + ' ' + currentTurn + ' ' + castling + ' - 0 1'; 
     
     engine.postMessage('stop');
     engine.postMessage('position fen ' + fullFen);
-    engine.postMessage('go depth 15'); 
+    
+    // Aumentato da 15 a 18: analisi molto più profonda e "Strong"
+    engine.postMessage('go depth 18'); 
 }
 
 engine.onmessage = function(event) {
     var line = event.data;
     
+    // Lettura del vantaggio numerico
     if (line.indexOf('info depth') !== -1 && line.indexOf('score cp') !== -1) {
         var match = line.match(/score cp (-?\d+)/);
         if (match) {
-            // Se tocca al nero, invertiamo il punteggio numerico in modo che i "più" siano vantaggi per il bianco
             var rawEval = parseInt(match[1]);
-            if (currentTurn === 'b') {
-                rawEval = -rawEval;
-            }
+            if (currentTurn === 'b') rawEval = -rawEval; // Inverte se tocca al nero
             var eval = (rawEval / 100).toFixed(2);
             $('#evalValue').text(eval > 0 ? '+' + eval : eval);
         }
     }
     
+    // Lettura del Matto Forzato o Partita Finita
     if (line.indexOf('info depth') !== -1 && line.indexOf('score mate') !== -1) {
         var mateMatch = line.match(/score mate (-?\d+)/);
         if (mateMatch) {
             var rawMate = parseInt(mateMatch[1]);
-            // Anche per il matto forzato calcoliamo in base a chi muove
-            if (currentTurn === 'b') {
-                rawMate = -rawMate;
+            
+            if (rawMate === 0) {
+                // IL MOTORE RILEVA MATTO SULLA SCACCHIERA
+                $('#evalValue').text('🏆 SCACCO MATTO!').css('color', '#e74c3c');
+            } else {
+                if (currentTurn === 'b') rawMate = -rawMate;
+                var testoMatto = rawMate > 0 ? 'Matto (B) in ' : 'Matto (N) in ';
+                $('#evalValue').text(testoMatto + Math.abs(rawMate));
             }
-            var testoMatto = rawMate > 0 ? 'Matto (B) in ' : 'Matto (N) in ';
-            $('#evalValue').text(testoMatto + Math.abs(rawMate));
         }
     }
     
+    // Gestione della Mossa Migliore
     if (line.indexOf('bestmove') !== -1) {
         var bestMove = line.split(' ')[1];
-        if (bestMove !== '(none)') {
+        if (bestMove === '(none)') {
+            // Se Stockfish restituisce (none), la partita è terminata (Matto o Stallo)
+            $('#bestMoveDisplay').text('Fine partita.');
+        } else {
             $('#bestMoveDisplay').text('Migliore: ' + bestMove);
         }
     }
@@ -262,7 +289,7 @@ $('#toggleEngineBtn').on('click', function() {
         updateEvaluation();
     } else {
         $(this).text('▶️ Analisi').css('background-color', '#27ae60');
-        $('#evalValue').text('Motore spento');
+        $('#evalValue').text('Motore spento').css('color', '#2c3e50');
         $('#bestMoveDisplay').text('');
         engine.postMessage('stop');
     }
@@ -271,8 +298,6 @@ $('#toggleEngineBtn').on('click', function() {
 var oldOnChange = config.onChange;
 config.onChange = function(oldPos, newPos) {
     if (oldOnChange) oldOnChange(oldPos, newPos); 
-    
-    // Aggiorniamo sempre il calcolo. Il cambio turno l'utente lo fa con l'apposito tasto.
     updateEvaluation(); 
 };
 
