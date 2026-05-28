@@ -47,6 +47,16 @@
             <button id="clearBtn">Svuota</button>
             <button id="flipBtn" style="background-color: #27ae60;">🔄 Ruota</button> <button id="getFenBtn">FEN</button>
         </div>
+        
+        <div class="feature-section" style="background-color: #f8f9fa; border-left: 4px solid #8e44ad;">
+            <label style="color: #8e44ad; font-weight: bold;">📷 Scansiona Scacchiera Reale</label>
+            <div class="input-row">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+                <button id="cameraBtn" style="background-color: #8e44ad; width: 100%; font-weight: bold; padding: 12px;">
+                    Scatta Foto
+                </button>
+            </div>
+        </div>
 
         <p id="currentFenDisplay" class="fen-text"></p>
 
