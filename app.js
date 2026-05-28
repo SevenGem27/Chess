@@ -141,6 +141,224 @@ $('#loadPuzzleBtn').on('click', function() {
     }
 });
 
+// --- 6.5 FOTOCAMERA E COMPUTER VISION (API) ---
+
+// Quando l'utente preme il bottone viola, simuliamo il click sull'input nascosto
+$('#cameraBtn').on('click', function() {
+    $('#cameraInput').click(); 
+});
+
+// Quando la foto è stata scattata o scelta dalla galleria
+$('#cameraInput').on('change', function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    // 1. Feedback visivo per l'utente
+    $('#evalValue').text('👀 Analisi intelligenza artificiale...').css('color', '#8e44ad');
+    $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
+
+    // 2. Convertiamo l'immagine in Base64 (il formato che capisce Roboflow)
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async function(e) {
+        // Rimuoviamo l'intestazione iniziale del formato Base64
+        var base64Image = e.target.result.split(',')[1]; 
+
+        try {
+            // 3. Chiamata API a Roboflow (Il "Cervello")
+            const response = await fetch('https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    api_key: '3TMUVBLCFC0fZhkBVdaH',
+                    inputs: {
+                        "image": { "type": "base64", "value": base64Image }
+                        // Rimosso il parametro "classes" errato
+                    }
+                })
+            });
+
+            const result = await response.json();
+            
+            // 4. Invia i dati grezzi di Roboflow al nostro Traduttore Matematico
+            var fenRilevato = generaFenDaRoboflow(result);
+
+            // 5. Carica il FEN sull'interfaccia
+            board.position(fenRilevato);
+            $('#fenInput').val(fenRilevato);
+            
+            // Ripristina il turno al Bianco come standard dopo una nuova scansione
+            cambiaTurno('w');
+            
+            if (engineRunning) {
+                updateEvaluation();
+            } else {
+                $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
+                $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
+            }
+
+        } catch (error) {
+            console.error(error);
+            $('#evalValue').text('Errore scansione').css('color', '#e74c3c');
+            $('#bestMoveDisplay').text('Riprova con una foto più nitida.');
+        }
+
+        // Svuota l'input per foto successive
+        $('#cameraInput').val('');
+    };
+});
+
+// --- IL TRADUTTORE MATEMATICO (Pixel -> FEN) ---
+function generaFenDaRoboflow(apiResult) {
+    // 1. Estraiamo la lista dei pezzi trovati (dipende da come risponde il tuo specifico workflow)
+    // Solitamente Roboflow restituisce un array in result[0].predictions o result.predictions
+    let predictions = [];
+    if (apiResult.predictions) predictions = apiResult.predictions;
+    else if (apiResult[0] && apiResult[0].predictions) predictions = apiResult[0].predictions;
+    
+    // Se non trova pezzi o la foto è mossa, restituisce scacchiera vuota
+    if (!predictions || predictions.length === 0) return "8/8/8/8/8/8/8/8";
+
+    // 2. Trova i bordi esterni della scacchiera guardando dove sono i pezzi più estremi
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    predictions.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+    });
+
+    // 3. Calcola la dimensione di una singola casella
+    let width = maxX - minX;
+    let height = maxY - minY;
+    let squareW = width / 7; 
+    let squareH = height / 7;
+
+    // Crea una griglia logica vuota 8x8
+    let grid = Array(8).fill(null).map(() => Array(8).fill(null));
+
+    // 4. Posiziona ogni pezzo rilevato nella cella giusta
+    predictions.forEach(p => {
+        let col = Math.round((p.x - minX) / squareW);
+        let row = Math.round((p.y - minY) / squareH);
+        
+        // Assicurati che non sfori fuori dalla griglia (0 a 7)
+        col = Math.max(0, Math.min(7, col));
+        row = Math.max(0, Math.min(7, row));
+        
+        // Salva il nome della classe del pezzo (es. "white-king", "wK", "K")
+        grid[row][col] = formattaClassePezzo(p.class); 
+    });
+
+    // 5. Costruisce le righe del FEN
+    let fenRows = [];
+    for (let r = 0; r < 8; r++) {
+        let emptyCount = 0;
+        let rowStr = "";
+        for (let c = 0; c < 8; c++) {
+            let pezzo = grid[r][c];
+            if (pezzo) {
+                if (emptyCount > 0) { rowStr += emptyCount; emptyCount = 0; }
+                rowStr += pezzo;
+            } else {
+                emptyCount++;
+            }
+        }
+        if (emptyCount > 0) rowStr += emptyCount;
+        fenRows.push(rowStr);
+    }
+    
+    return fenRows.join('/');
+}
+
+// Funzione d'appoggio per tradurre le etichette di Roboflow nei codici FEN standard
+function formattaClassePezzo(className) {
+    if (!className) return "";
+    let c = className.toLowerCase();
+    
+    // Converte le classi nei caratteri standard FEN
+    // MAIUSCOLO = Bianco, minuscolo = Nero
+    if (c.includes("white") || c.includes("w")) {
+        if (c.includes("p")) return "P";
+        if (c.includes("n") || c.includes("knight")) return "N";
+        if (c.includes("b") || c.includes("bishop")) return "B";
+        if (c.includes("r") || c.includes("rook")) return "R";
+        if (c.includes("q") || c.includes("queen")) return "Q";
+        if (c.includes("k") || c.includes("king")) return "K";
+    } else {
+        if (c.includes("p")) return "p";
+        if (c.includes("n") || c.includes("knight")) return "n";
+        if (c.includes("b") || c.includes("bishop")) return "b";
+        if (c.includes("r") || c.includes("rook")) return "r";
+        if (c.includes("q") || c.includes("queen")) return "q";
+        if (c.includes("k") || c.includes("king")) return "k";
+    }
+    return "";
+}
+
+    /* =========================================================
+       IL VERO CODICE PER L'API (Da attivare quando avrai un server)
+       =========================================================
+    var apiUrl = 'https://api.iltuoservizio-scacchi.com/upload'; 
+    
+    fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Authorization': 'Bearer LA_TUA_API_KEY_SEGRETA' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        var fenRilevato = data.fen; // Il server ci risponde con il FEN!
+        
+        board.position(fenRilevato);
+        $('#fenInput').val(fenRilevato);
+        
+        // Estraiamo il turno dal FEN se presente
+        var partiFen = fenRilevato.split(' ');
+        if (partiFen[1] === 'b' || partiFen[1] === 'w') {
+            cambiaTurno(partiFen[1]);
+        } else {
+            cambiaTurno('w'); // Default
+        }
+    })
+    .catch(error => {
+        alert('Errore di connessione: ' + error.message);
+        $('#evalValue').text('Errore fotocamera').css('color', '#e74c3c');
+    });
+    ========================================================= */
+
+    // 3. SIMULAZIONE PER IL TEST (Elimina questo blocco quando avrai l'API vera)
+    setTimeout(function() {
+        // Fingiamo che il server abbia visto una Difesa Siciliana
+        var mockFen = 'r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 2 2';
+        
+        // Carichiamo la posizione sulla scacchiera
+        board.position(mockFen);
+        $('#fenInput').val(mockFen);
+        
+        // Regoliamo il turno in automatico leggendo il FEN simulato
+        var partiFen = mockFen.split(' ');
+        if (partiFen[1] === 'b' || partiFen[1] === 'w') {
+            cambiaTurno(partiFen[1]);
+        }
+        
+        // Riavvia l'analisi di Stockfish se era già accesa
+        if (engineRunning) {
+            updateEvaluation();
+        } else {
+            $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
+            $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
+        }
+        
+        // Svuota l'input file per permettere di scattare subito un'altra foto
+        $('#cameraInput').val('');
+        
+    }, 2500); // Finge un'attesa di 2.5 secondi del server
+});
+
+
 // 7. DATABASE LOCALE
 function updateSavedList() {
     var savedPositions = JSON.parse(localStorage.getItem('chess_positions')) || [];
