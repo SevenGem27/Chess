@@ -248,7 +248,11 @@ try {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     api_key: '3TMUVBLCFC0fZhkBVdaH',
-                    inputs: { "image": { "type": "base64", "value": base64Image } }
+                    inputs: { 
+                        "image": { "type": "base64", "value": base64Image },
+                        // ECCO IL PARAMETRO MANCANTE: Diciamo all'IA cosa cercare!
+                        "classes": "white pawn, white knight, white bishop, white rook, white queen, white king, black pawn, black knight, black bishop, black rook, black queen, black king"
+                    }
                 })
             });
 
