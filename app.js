@@ -300,33 +300,58 @@ $('#galleryInput').on('change', processaImmagine);
 
 // --- IL TRADUTTORE MATEMATICO (Pixel -> FEN) ---
 function generaFenDaRoboflow(apiResult) {
-    let predictions = [];
-    
-    // Roboflow Workflows restituiscono una struttura più complessa
-    if (apiResult.outputs && apiResult.outputs[0]) {
-        // Estrazione dati per i workflow generici
-        if (apiResult.outputs[0].predictions) predictions = apiResult.outputs[0].predictions;
-        else if (apiResult.outputs[0].data) predictions = apiResult.outputs[0].data;
-    } else if (apiResult.predictions) {
-        predictions = apiResult.predictions;
-    } else if (apiResult[0] && apiResult[0].predictions) {
-        predictions = apiResult[0].predictions;
+    // 1. Funzione "Segugio" per scavare nel JSON e trovare l'array dei pezzi
+    function trovaArray(obj) {
+        if (Array.isArray(obj)) {
+            // Cerca un array dove gli elementi hanno coordinate x e y (o nomi simili)
+            if (obj.length > 0 && (obj[0].x !== undefined || obj[0].box !== undefined || obj[0].center !== undefined)) {
+                return obj;
+            }
+        } else if (obj !== null && typeof obj === 'object') {
+            for (let key in obj) {
+                let result = trovaArray(obj[key]);
+                if (result && result.length > 0) return result;
+            }
+        }
+        return [];
     }
-    
-    if (!predictions || predictions.length === 0) return "8/8/8/8/8/8/8/8";
 
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    let predictions = trovaArray(apiResult);
+
+    // 2. Protezione Anti-Crash Assoluta
+    if (!Array.isArray(predictions) || predictions.length === 0) {
+        // Se l'IA ha mandato un formato illeggibile, te lo mostriamo a schermo
+        alert("Il server ha risposto con un formato inaspettato:\n\n" + JSON.stringify(apiResult).substring(0, 150));
+        return "8/8/8/8/8/8/8/8"; // Restituisce scacchiera vuota senza crashare
+    }
+
+    // 3. Estrazione flessibile delle coordinate (si adatta a vari tipi di IA)
+    let pezziPuliti = [];
     predictions.forEach(p => {
+        let px, py, pclass;
+        if (p.x !== undefined && p.y !== undefined) { px = p.x; py = p.y; }
+        else if (p.center && p.center.x !== undefined) { px = p.center.x; py = p.center.y; }
+        else if (p.box && p.box.x !== undefined) { px = p.box.x; py = p.box.y; }
+        else if (p.bounds && p.bounds.x !== undefined) { px = p.bounds.x; py = p.bounds.y; }
+        else return;
+
+        pclass = p.class || p.class_name || p.name || p.label || "";
+        pezziPuliti.push({ x: px, y: py, class: pclass });
+    });
+
+    if (pezziPuliti.length === 0) return "8/8/8/8/8/8/8/8";
+
+    // 4. Trova i limiti per ritagliare e inquadrare la scacchiera
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    pezziPuliti.forEach(p => {
         if (p.x < minX) minX = p.x;
         if (p.x > maxX) maxX = p.x;
         if (p.y < minY) minY = p.y;
         if (p.y > maxY) maxY = p.y;
     });
 
-    // Se troviamo un solo pezzo la divisione non funziona
     if (minX === maxX || minY === maxY) return "8/8/8/8/8/8/8/8";
 
-    // Espandiamo leggermente i bordi (1/16) per assicurarci di centrare la scacchiera
     let paddingX = (maxX - minX) / 14;
     let paddingY = (maxY - minY) / 14;
     minX -= paddingX; maxX += paddingX;
@@ -339,7 +364,7 @@ function generaFenDaRoboflow(apiResult) {
 
     let grid = Array(8).fill(null).map(() => Array(8).fill(null));
 
-    predictions.forEach(p => {
+    pezziPuliti.forEach(p => {
         let col = Math.floor((p.x - minX) / squareW);
         let row = Math.floor((p.y - minY) / squareH);
         
@@ -367,29 +392,6 @@ function generaFenDaRoboflow(apiResult) {
     }
     return fenRows.join('/');
 }
-
-function formattaClassePezzo(className) {
-    if (!className) return "";
-    let c = className.toLowerCase();
-    // Supporto per vari stili di nomenclatura Roboflow
-    if (c.includes("white") || c.includes("w") || c.startsWith("w_")) {
-        if (c.includes("p")) return "P";
-        if (c.includes("n") || c.includes("knight")) return "N";
-        if (c.includes("b") || c.includes("bishop")) return "B";
-        if (c.includes("r") || c.includes("rook")) return "R";
-        if (c.includes("q") || c.includes("queen")) return "Q";
-        if (c.includes("k") || c.includes("king")) return "K";
-    } else {
-        if (c.includes("p")) return "p";
-        if (c.includes("n") || c.includes("knight")) return "n";
-        if (c.includes("b") || c.includes("bishop")) return "b";
-        if (c.includes("r") || c.includes("rook")) return "r";
-        if (c.includes("q") || c.includes("queen")) return "q";
-        if (c.includes("k") || c.includes("king")) return "k";
-    }
-    return "";
-}
-
 // 9. MOTORE DI ANALISI (STOCKFISH)
 var engine = new Worker('stockfish.js');
 var engineRunning = false;
