@@ -195,7 +195,7 @@ updateSavedList();
 $('#cameraBtn').on('click', function() { $('#cameraInput').click(); });
 $('#galleryBtn').on('click', function() { $('#galleryInput').click(); });
 
-// NUOVO: Funzione magica per comprimere le foto giganti degli smartphone
+// NUOVO: La compressione ora genera un vero file immagine binario (BLOB)
 function comprimiImmagine(file, callback) {
     var reader = new FileReader();
     reader.readAsDataURL(file);
@@ -203,7 +203,7 @@ function comprimiImmagine(file, callback) {
         var img = new Image();
         img.src = event.target.result;
         img.onload = function() {
-            var MAX_SIZE = 800; // La dimensione ideale per l'IA
+            var MAX_SIZE = 800; // Dimensione ideale per l'IA
             var width = img.width;
             var height = img.height;
 
@@ -219,10 +219,10 @@ function comprimiImmagine(file, callback) {
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Esporta l'immagine compressa (qualità 80%) e rimuove l'intestazione
-            var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            var base64 = dataUrl.split(',')[1];
-            callback(base64);
+            // LA VERA MAGIA: Esporta un file immagine puro e leggerissimo, niente testi!
+            canvas.toBlob(function(blob) {
+                callback(blob);
+            }, 'image/jpeg', 0.8);
         }
     }
 }
@@ -234,24 +234,21 @@ function processaImmagine(event) {
     $('#evalValue').text('⏳ Compressione e Analisi...').css('color', '#8e44ad');
     $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
 
-    // Usiamo la nuova funzione di compressione
-    comprimiImmagine(file, async function(base64Image) {
-// PARTE DA SOSTITUIRE: DA QUI...
-try {
-            // SOSTITUISCI IL TESTO TRA LE VIRGOLETTE CON IL TUO NUOVO ID
-            const projectId = "matteos-workspace-vewwt/workflows/<YOUR_WORKFLOW_ID>"; 
+    comprimiImmagine(file, async function(imageBlob) {
+        try {
+            // ---> ATTENZIONE QUI <---
+            // Usa l'ID del tuo progetto (es. "il-mio-progetto/1"). 
+            // NON inserire URL completi o link che contengono la parola "workflow"
+            const projectId = "chess-pieces-4/2"; 
             
             const apiKey = "3TMUVBLCFC0fZhkBVdaH"; 
             
             const roboflowUrl = `https://detect.roboflow.com/${projectId}?api_key=${apiKey}`;
-  
-            // Questa API è molto più semplice: vuole solo la stringa base64 "nuda e cruda"
+
+            // Chiamata SUPER-PULITA: inviamo il file binario nudo e crudo!
             const response = await fetch(roboflowUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: base64Image
+                body: imageBlob
             });
 
             if (!response.ok) {
@@ -286,8 +283,7 @@ try {
             alert("Dettaglio Tecnico: " + error.message);
             $('#evalValue').text('Errore di connessione').css('color', '#e74c3c');
             $('#bestMoveDisplay').text('Impossibile contattare l\'IA.');
-        } 
-        // ... A QUI (FINO A QUESTA GRAFFA DI CHIUSURA DEL CATCH)
+        }
         
         $('#cameraInput').val('');
         $('#galleryInput').val('');
