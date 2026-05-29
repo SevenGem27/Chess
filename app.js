@@ -236,29 +236,26 @@ function processaImmagine(event) {
 
     // Usiamo la nuova funzione di compressione
     comprimiImmagine(file, async function(base64Image) {
-try {
-            // L'URL originale di Roboflow
-            const roboflowUrl = 'https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api';
+// PARTE DA SOSTITUIRE: DA QUI...
+        try {
+            // L'API standard di Object Detection di Roboflow (Niente più proxy, Safari lo accetta!)
+            const projectId = "chess-pieces-4/2"; // Modello pubblico addestrato sugli scacchi
+            const apiKey = "3TMUVBLCFC0fZhkBVdaH"; 
             
-            // Il "Ponte" (CORS Proxy) per aggirare il blocco di sicurezza di Safari
-            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(roboflowUrl);
+            const roboflowUrl = `https://detect.roboflow.com/${projectId}?api_key=${apiKey}`;
 
-            const response = await fetch(proxyUrl, {
+            // Questa API è molto più semplice: vuole solo la stringa base64 "nuda e cruda"
+            const response = await fetch(roboflowUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    api_key: '3TMUVBLCFC0fZhkBVdaH',
-                    inputs: { 
-                        "image": { "type": "base64", "value": base64Image },
-                        // ECCO IL PARAMETRO MANCANTE: Diciamo all'IA cosa cercare!
-                        "classes": "white pawn, white knight, white bishop, white rook, white queen, white king, black pawn, black knight, black bishop, black rook, black queen, black king"
-                    }
-                })
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: base64Image
             });
 
             if (!response.ok) {
                 const errorTesto = await response.text();
-                throw new Error("Errore Server Roboflow: " + response.status + " " + errorTesto);
+                throw new Error("Errore API Roboflow: " + response.status + " " + errorTesto);
             }
 
             const result = await response.json();
@@ -268,7 +265,7 @@ try {
             
             if (fenRilevato === "8/8/8/8/8/8/8/8") {
                 $('#evalValue').text('Nessun pezzo trovato 🤔').css('color', '#e67e22');
-                $('#bestMoveDisplay').text('Avvicinati di più alla scacchiera.');
+                $('#bestMoveDisplay').text('Assicurati di inquadrare bene la scacchiera.');
                 return; 
             }
 
@@ -288,7 +285,8 @@ try {
             alert("Dettaglio Tecnico: " + error.message);
             $('#evalValue').text('Errore di connessione').css('color', '#e74c3c');
             $('#bestMoveDisplay').text('Impossibile contattare l\'IA.');
-        }
+        } 
+        // ... A QUI (FINO A QUESTA GRAFFA DI CHIUSURA DEL CATCH)
         
         $('#cameraInput').val('');
         $('#galleryInput').val('');
