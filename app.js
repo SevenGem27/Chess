@@ -475,9 +475,19 @@ config.onChange = function(oldPos, newPos) {
     updateEvaluation(); 
 };
 
-// 10. REGISTRAZIONE SERVICE WORKER
+// 10. REGISTRAZIONE E PULIZIA SERVICE WORKER
 if ('serviceWorker' in navigator) {
+  
+  // 1. Il Sicario: Trova e distrugge tutti i vecchi Service Worker bloccati in memoria
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
+      console.log("Vecchio Service Worker eliminato con successo.");
+    }
+  });
+
+  // 2. Registra il nuovo file forzando il browser a scaricarlo con un finto parametro (cache-buster)
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js?v=999');
   });
 }
