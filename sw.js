@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-pwa-v17'; // Cambia versione!
+const CACHE_NAME = 'chess-pwa-v18'; // Versione aggiornata per forzare il ricaricamento
 const urlsToCache = [
   './',
   './index.html',
@@ -28,6 +28,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // --- IL LASCIAPASSARE PER L'INTELLIGENZA ARTIFICIALE ---
+  // Se la richiesta è un upload (POST) o è diretta a Roboflow, il Service Worker si fa da parte
+  if (event.request.method !== 'GET' || event.request.url.includes('roboflow.com')) {
+    return; 
+  }
+
+  // Comportamento standard per tutto il resto dell'app (funzionamento offline)
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
