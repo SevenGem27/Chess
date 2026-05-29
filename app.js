@@ -192,42 +192,78 @@ updateSavedList();
 
 // 8. FOTOCAMERA E COMPUTER VISION (API)
 
-// Click sui bottoni visibili che attivano gli input nascosti
-$('#cameraBtn').on('click', function() {
-    $('#cameraInput').click(); 
-});
+$('#cameraBtn').on('click', function() { $('#cameraInput').click(); });
+$('#galleryBtn').on('click', function() { $('#galleryInput').click(); });
 
-$('#galleryBtn').on('click', function() {
-    $('#galleryInput').click(); 
-});
+// NUOVO: Funzione magica per comprimere le foto giganti degli smartphone
+function comprimiImmagine(file, callback) {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        var img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            var MAX_SIZE = 800; // La dimensione ideale per l'IA
+            var width = img.width;
+            var height = img.height;
 
-// Funzione unica che gestisce l'immagine, indipendentemente da dove provenga
+            if (width > height) {
+                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+            } else {
+                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+            }
+
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Esporta l'immagine compressa (qualità 80%) e rimuove l'intestazione
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            var base64 = dataUrl.split(',')[1];
+            callback(base64);
+        }
+    }
+}
+
 function processaImmagine(event) {
     var file = event.target.files[0];
     if (!file) return;
 
-    $('#evalValue').text('👀 Analisi intelligenza artificiale...').css('color', '#8e44ad');
+    $('#evalValue').text('⏳ Compressione e Analisi...').css('color', '#8e44ad');
     $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
 
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async function(e) {
-        var base64Image = e.target.result.split(',')[1]; 
-
+    // Usiamo la nuova funzione di compressione
+    comprimiImmagine(file, async function(base64Image) {
         try {
             const response = await fetch('https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     api_key: '3TMUVBLCFC0fZhkBVdaH',
-                    inputs: {
-                        "image": { "type": "base64", "value": base64Image }
-                    }
+                    inputs: { "image": { "type": "base64", "value": base64Image } }
                 })
             });
 
+            // Se il server di Roboflow risponde con un errore (es. limite mensile API raggiunto)
+            if (!response.ok) {
+                const errorTesto = await response.text();
+                throw new Error("Errore Server: " + response.status + " " + errorTesto);
+            }
+
             const result = await response.json();
+            
+            // Log per noi sviluppatori nel caso in cui il formato sia strano
+            console.log("Risposta Roboflow: ", result);
+
             var fenRilevato = generaFenDaRoboflow(result);
+            
+            if (fenRilevato === "8/8/8/8/8/8/8/8") {
+                $('#evalValue').text('Nessun pezzo trovato 🤔').css('color', '#e67e22');
+                $('#bestMoveDisplay').text('Avvicinati di più alla scacchiera.');
+                return; // Ci fermiamo qui
+            }
 
             board.position(fenRilevato);
             $('#fenInput').val(fenRilevato);
@@ -242,25 +278,34 @@ function processaImmagine(event) {
 
         } catch (error) {
             console.error(error);
-            $('#evalValue').text('Errore scansione').css('color', '#e74c3c');
-            $('#bestMoveDisplay').text('Riprova con una foto diversa o più nitida.');
+            // Ora mostriamo il vero errore in un popup così capiamo cosa succede
+            alert("Dettaglio Tecnico: " + error.message);
+            $('#evalValue').text('Errore di connessione').css('color', '#e74c3c');
+            $('#bestMoveDisplay').text('Impossibile contattare l\'IA.');
         }
         
-        // Svuota entrambi gli input per permettere nuovi caricamenti
         $('#cameraInput').val('');
         $('#galleryInput').val('');
-    };
+    });
 }
 
-// Agganciamo la funzione di calcolo a entrambi gli input
 $('#cameraInput').on('change', processaImmagine);
 $('#galleryInput').on('change', processaImmagine);
 
-// TRADUTTORE MATEMATICO (Pixel -> FEN)
+// --- IL TRADUTTORE MATEMATICO (Pixel -> FEN) ---
 function generaFenDaRoboflow(apiResult) {
     let predictions = [];
-    if (apiResult.predictions) predictions = apiResult.predictions;
-    else if (apiResult[0] && apiResult[0].predictions) predictions = apiResult[0].predictions;
+    
+    // Roboflow Workflows restituiscono una struttura più complessa
+    if (apiResult.outputs && apiResult.outputs[0]) {
+        // Estrazione dati per i workflow generici
+        if (apiResult.outputs[0].predictions) predictions = apiResult.outputs[0].predictions;
+        else if (apiResult.outputs[0].data) predictions = apiResult.outputs[0].data;
+    } else if (apiResult.predictions) {
+        predictions = apiResult.predictions;
+    } else if (apiResult[0] && apiResult[0].predictions) {
+        predictions = apiResult[0].predictions;
+    }
     
     if (!predictions || predictions.length === 0) return "8/8/8/8/8/8/8/8";
 
@@ -272,16 +317,25 @@ function generaFenDaRoboflow(apiResult) {
         if (p.y > maxY) maxY = p.y;
     });
 
+    // Se troviamo un solo pezzo la divisione non funziona
+    if (minX === maxX || minY === maxY) return "8/8/8/8/8/8/8/8";
+
+    // Espandiamo leggermente i bordi (1/16) per assicurarci di centrare la scacchiera
+    let paddingX = (maxX - minX) / 14;
+    let paddingY = (maxY - minY) / 14;
+    minX -= paddingX; maxX += paddingX;
+    minY -= paddingY; maxY += paddingY;
+
     let width = maxX - minX;
     let height = maxY - minY;
-    let squareW = width / 7; 
-    let squareH = height / 7;
+    let squareW = width / 8; 
+    let squareH = height / 8;
 
     let grid = Array(8).fill(null).map(() => Array(8).fill(null));
 
     predictions.forEach(p => {
-        let col = Math.round((p.x - minX) / squareW);
-        let row = Math.round((p.y - minY) / squareH);
+        let col = Math.floor((p.x - minX) / squareW);
+        let row = Math.floor((p.y - minY) / squareH);
         
         col = Math.max(0, Math.min(7, col));
         row = Math.max(0, Math.min(7, row));
@@ -311,7 +365,8 @@ function generaFenDaRoboflow(apiResult) {
 function formattaClassePezzo(className) {
     if (!className) return "";
     let c = className.toLowerCase();
-    if (c.includes("white") || c.includes("w")) {
+    // Supporto per vari stili di nomenclatura Roboflow
+    if (c.includes("white") || c.includes("w") || c.startsWith("w_")) {
         if (c.includes("p")) return "P";
         if (c.includes("n") || c.includes("knight")) return "N";
         if (c.includes("b") || c.includes("bishop")) return "B";
