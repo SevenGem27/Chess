@@ -237,13 +237,14 @@ function processaImmagine(event) {
     // Usiamo la nuova funzione di compressione
     comprimiImmagine(file, async function(base64Image) {
 // PARTE DA SOSTITUIRE: DA QUI...
-        try {
-            // L'API standard di Object Detection di Roboflow (Niente più proxy, Safari lo accetta!)
-            const projectId = "chess-pieces-4/2"; // Modello pubblico addestrato sugli scacchi
+try {
+            // SOSTITUISCI IL TESTO TRA LE VIRGOLETTE CON IL TUO NUOVO ID
+            const projectId = "matteos-workspace-vewwt/workflows/<YOUR_WORKFLOW_ID>"; 
+            
             const apiKey = "3TMUVBLCFC0fZhkBVdaH"; 
             
             const roboflowUrl = `https://detect.roboflow.com/${projectId}?api_key=${apiKey}`;
-
+  
             // Questa API è molto più semplice: vuole solo la stringa base64 "nuda e cruda"
             const response = await fetch(roboflowUrl, {
                 method: 'POST',
