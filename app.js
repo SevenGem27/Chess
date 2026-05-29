@@ -20,7 +20,7 @@ var historyIndex = -1;
 var isProgrammatic = false;
 var currentTurn = 'w';
 
-// Funzione globale chiamata dai bottoni HTML per cambiare il turno
+// Tasti per il cambio turno manuale
 window.cambiaTurno = function(colore) {
     currentTurn = colore;
 
@@ -190,203 +190,6 @@ $('#savePosBtn').on('click', function() {
 
 updateSavedList();
 
-// 8. FOTOCAMERA E COMPUTER VISION (API)
-
-$('#cameraBtn').on('click', function() { $('#cameraInput').click(); });
-$('#galleryBtn').on('click', function() { $('#galleryInput').click(); });
-
-// NUOVO: La compressione ora genera un vero file immagine binario (BLOB)
-function comprimiImmagine(file, callback) {
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function(event) {
-        var img = new Image();
-        img.src = event.target.result;
-        img.onload = function() {
-            var MAX_SIZE = 800; // Dimensione ideale per l'IA
-            var width = img.width;
-            var height = img.height;
-
-            if (width > height) {
-                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-            } else {
-                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-            }
-
-            var canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // LA VERA MAGIA: Esporta un file immagine puro e leggerissimo, niente testi!
-            canvas.toBlob(function(blob) {
-                callback(blob);
-            }, 'image/jpeg', 0.8);
-        }
-    }
-}
-
-function processaImmagine(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-
-    $('#evalValue').text('⏳ Compressione e Analisi...').css('color', '#8e44ad');
-    $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
-
-    comprimiImmagine(file, async function(imageBlob) {
-        try {
-            // ---> ATTENZIONE QUI <---
-            // Usa l'ID del tuo progetto (es. "il-mio-progetto/1"). 
-            // NON inserire URL completi o link che contengono la parola "workflow"
-            const projectId = "chess-pieces-4/2"; 
-            
-            const apiKey = "3TMUVBLCFC0fZhkBVdaH"; 
-            
-            const roboflowUrl = `https://detect.roboflow.com/${projectId}?api_key=${apiKey}`;
-
-            // Chiamata SUPER-PULITA: inviamo il file binario nudo e crudo!
-            const response = await fetch(roboflowUrl, {
-                method: 'POST',
-                body: imageBlob
-            });
-
-            if (!response.ok) {
-                const errorTesto = await response.text();
-                throw new Error("Errore API Roboflow: " + response.status + " " + errorTesto);
-            }
-
-            const result = await response.json();
-            console.log("Risposta Roboflow: ", result);
-
-            var fenRilevato = generaFenDaRoboflow(result);
-            
-            if (fenRilevato === "8/8/8/8/8/8/8/8") {
-                $('#evalValue').text('Nessun pezzo trovato 🤔').css('color', '#e67e22');
-                $('#bestMoveDisplay').text('Assicurati di inquadrare bene la scacchiera.');
-                return; 
-            }
-
-            board.position(fenRilevato);
-            $('#fenInput').val(fenRilevato);
-            cambiaTurno('w');
-            
-            if (engineRunning) {
-                updateEvaluation();
-            } else {
-                $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
-                $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
-            }
-
-        } catch (error) {
-            console.error(error);
-            alert("Dettaglio Tecnico: " + error.message);
-            $('#evalValue').text('Errore di connessione').css('color', '#e74c3c');
-            $('#bestMoveDisplay').text('Impossibile contattare l\'IA.');
-        }
-        
-        $('#cameraInput').val('');
-        $('#galleryInput').val('');
-    });
-}
-
-$('#cameraInput').on('change', processaImmagine);
-$('#galleryInput').on('change', processaImmagine);
-
-// --- IL TRADUTTORE MATEMATICO (Pixel -> FEN) ---
-function generaFenDaRoboflow(apiResult) {
-    // 1. Funzione "Segugio" per scavare nel JSON e trovare l'array dei pezzi
-    function trovaArray(obj) {
-        if (Array.isArray(obj)) {
-            // Cerca un array dove gli elementi hanno coordinate x e y (o nomi simili)
-            if (obj.length > 0 && (obj[0].x !== undefined || obj[0].box !== undefined || obj[0].center !== undefined)) {
-                return obj;
-            }
-        } else if (obj !== null && typeof obj === 'object') {
-            for (let key in obj) {
-                let result = trovaArray(obj[key]);
-                if (result && result.length > 0) return result;
-            }
-        }
-        return [];
-    }
-
-    let predictions = trovaArray(apiResult);
-
-    // 2. Protezione Anti-Crash Assoluta
-    if (!Array.isArray(predictions) || predictions.length === 0) {
-        // Se l'IA ha mandato un formato illeggibile, te lo mostriamo a schermo
-        alert("Il server ha risposto con un formato inaspettato:\n\n" + JSON.stringify(apiResult).substring(0, 150));
-        return "8/8/8/8/8/8/8/8"; // Restituisce scacchiera vuota senza crashare
-    }
-
-    // 3. Estrazione flessibile delle coordinate (si adatta a vari tipi di IA)
-    let pezziPuliti = [];
-    predictions.forEach(p => {
-        let px, py, pclass;
-        if (p.x !== undefined && p.y !== undefined) { px = p.x; py = p.y; }
-        else if (p.center && p.center.x !== undefined) { px = p.center.x; py = p.center.y; }
-        else if (p.box && p.box.x !== undefined) { px = p.box.x; py = p.box.y; }
-        else if (p.bounds && p.bounds.x !== undefined) { px = p.bounds.x; py = p.bounds.y; }
-        else return;
-
-        pclass = p.class || p.class_name || p.name || p.label || "";
-        pezziPuliti.push({ x: px, y: py, class: pclass });
-    });
-
-    if (pezziPuliti.length === 0) return "8/8/8/8/8/8/8/8";
-
-    // 4. Trova i limiti per ritagliare e inquadrare la scacchiera
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    pezziPuliti.forEach(p => {
-        if (p.x < minX) minX = p.x;
-        if (p.x > maxX) maxX = p.x;
-        if (p.y < minY) minY = p.y;
-        if (p.y > maxY) maxY = p.y;
-    });
-
-    if (minX === maxX || minY === maxY) return "8/8/8/8/8/8/8/8";
-
-    let paddingX = (maxX - minX) / 14;
-    let paddingY = (maxY - minY) / 14;
-    minX -= paddingX; maxX += paddingX;
-    minY -= paddingY; maxY += paddingY;
-
-    let width = maxX - minX;
-    let height = maxY - minY;
-    let squareW = width / 8; 
-    let squareH = height / 8;
-
-    let grid = Array(8).fill(null).map(() => Array(8).fill(null));
-
-    pezziPuliti.forEach(p => {
-        let col = Math.floor((p.x - minX) / squareW);
-        let row = Math.floor((p.y - minY) / squareH);
-        
-        col = Math.max(0, Math.min(7, col));
-        row = Math.max(0, Math.min(7, row));
-        
-        grid[row][col] = formattaClassePezzo(p.class); 
-    });
-
-    let fenRows = [];
-    for (let r = 0; r < 8; r++) {
-        let emptyCount = 0;
-        let rowStr = "";
-        for (let c = 0; c < 8; c++) {
-            let pezzo = grid[r][c];
-            if (pezzo) {
-                if (emptyCount > 0) { rowStr += emptyCount; emptyCount = 0; }
-                rowStr += pezzo;
-            } else {
-                emptyCount++;
-            }
-        }
-        if (emptyCount > 0) rowStr += emptyCount;
-        fenRows.push(rowStr);
-    }
-    return fenRows.join('/');
-}
 // 9. MOTORE DI ANALISI (STOCKFISH)
 var engine = new Worker('stockfish.js');
 var engineRunning = false;
@@ -478,19 +281,9 @@ config.onChange = function(oldPos, newPos) {
     updateEvaluation(); 
 };
 
-// 10. REGISTRAZIONE E PULIZIA SERVICE WORKER
+// 10. REGISTRAZIONE SERVICE WORKER Standard
 if ('serviceWorker' in navigator) {
-  
-  // 1. Il Sicario: Trova e distrugge tutti i vecchi Service Worker bloccati in memoria
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for(let registration of registrations) {
-      registration.unregister();
-      console.log("Vecchio Service Worker eliminato con successo.");
-    }
-  });
-
-  // 2. Registra il nuovo file forzando il browser a scaricarlo con un finto parametro (cache-buster)
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=999');
+    navigator.serviceWorker.register('sw.js');
   });
 }
