@@ -4,7 +4,7 @@ const pezziBase64 = {
   wN: "data:image/png;base64,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",
   wB: "data:image/png;base64,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",
   wR: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAEEElEQVR42u1bv0sjQRhdIwloklNMLIRg4T9hKWJxZ21x1RVidea0ukoQFbEWD6OndoLFIRbW0ShaimBt4R+gIqIW+QH5bt7ejE6WJP7CnZnje/DIkt1v3pvn7sZN5vM8BoPBYDAYDAaDwWAwGAyGm0gJjgp+b8BxwZ531CuOymMboUdqvbXeGDYFS01YETx/R73OzSbjnEutt9YbQUKwIEhgNBqlWCzmv4ItLS14vyr3v7pebav98thEg7F8LWi+sd5sgO3t7bS0tEQrKyuUy+X87f7+ft28Ol4xLi+743r1ILbxHvbJMY5lTTwwlgrQ10RNg3p7A0ylUhTE5OSkHmBeHqsTgdw2qlfAPjnGrawJjpNXOtBsUm9vgF1dXVSpVB5Nl0olmpiYUMarWpD1WO3o6GgYIPa9ZAy8QhPaCvAEb84FCOTzecpkMv4+nAWNiIBmZ2f9mmq1+livtrEPxzQbAxrQgqYOZwPUg3gp6tW8dxynA3zN5Jsd+9pxXAow3uxDxBYEPkTiNgXYIXj0zM3dJh5Jz1bht/4p2NfXR0NDQzQ4OGiU8AAvgf8Cftn6LPxHGe3t7aWTkxMqFot0d3dH9/f3oRKa0IYHeNHCg8dPtn6hEBHcUiF2dnbSxcWFsXsetOFBC29LerQaEe1M9CdwdnZGNzc3dHV1FQqhBU0ZHmlnnvXhKSQFt/X7Tjwep0QiEQqhFbjnbUtPTiGhnk3T6TQtLi5SoVCg/f39DyU0oAVN7dk74TmKGUwCZ8XBwUFo9z5oQVMGOOPyt9TTKkCcGWEBWlqA0xwgB8gBcoAcIAfIAXKAHCAHyAFygBwgB8gBcoAcIAfIAXKATgVo8Btp9wPEwsa9vb3QAoSWtpjS6QCn5CSora2NkslkKISW9/Rz5pTLAT4u2x0bG6O5uTl/jd9HEhrQ0kI8djW8b4JlwerAwAA9PDyEdglDC5rev9+Fy9KLU0gLnqpL9/DwMPRlHdDUzsJT6ckJZLynVQnU3d1NCwsLH37pBglNaGv3wm3pzXpcek/LKp5bEB4GdR+XLgRIlgRXd/W+KwHS8PAw7ezs0O7urlHCA7x4tY0+9geYzWapXC4bXxcND/DiZIB6o4spwIOTAdZrtTKFQKuZVfji1fbmjnp1mv1Msk6zo96TPC7nYASfBa+92j7cojKqt5uapmy3VSwGPF/LuYSOH9IARSKRmv7e1tZWK6n3D8OzDLQk5xI6shCHkZGREVpfX/cvmeXlZZqfn/cf6m0iPMEbPMIrPMsQS3IuZgLEX3RtbY1cAzzLLnazAeJy2NjYcC5AeIZ34wF67vTHNaKxAL/+B+EpfjURIHovfgquCuYc5aqcg7E+ErROxQSjjjLmOdT+xWAwGAwGg8GwB38BOndQ3xYeBEYAAAAASUVORK5CYII=",
-  wQ: "data:image/png;base64,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",
+  wQ: "data:image/png;base64,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",
   wK: "data:image/png;base64,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",
   bP: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAC0ElEQVR42u2cPWgUQRSAP82PRjQSBUHTWamgIIiiEkWtAgo2goggKWxEQ4SoCGJiIYrVlYKiKAEbG8EUFlbaBBQ7f2JjoyCRIMZfojcWc0uWMTHJ3k7yZuZ98Jrj2Fu+ezv3Zt7jQFEURVEURVEURVEURVGUgiwGzgJDwAjwCXgDXAPaVc/ULAC6gHHA1KJaC5OLPqBJdf0rr98RZ5zIv/YAWK7aJuiaRt5kIm9qJk6seeMzlJeP78Be1QfnCsjL3lvRLLS/tqZgvACWpS5wZJbZl49vQJsKVIF18bKOR/g10Jq6wMsFxOVLmebUBbYWzL5fQKcWMXCpjkf4durbt0qBGtDdIw8CjSkK7K0j89y18H5qBfX2gtu3/0nsS0ng25Lk5eMdsDEFeYc8yMuudR5YGLvApyWKcwU+B5bGLG8F8Lnk7HMj6mP/fcBXTwKzax6MWeBR4IfH7DPA6ZgFHgd+ehZ4MWaBh7FH8T4FnoxZ4Fbgiydx2Rq4K2aBDcBHj9n3mwQOWO95LKQfAi2xC9zgQWAWx1LZC9/1IPEZsCoVgW3A+xLljdX22EnRie2qlSHwSmryVgMDJQocBDpSkbffOVAo60B1DOiOXV4PU8/9lSHRYAcxG2KU1wv88VhE57+UO8CSmOSdqu0SfNV/k2XjDWBRLGuemSN5bvRg26fB0o7/E+jp1sRNocprwvZr5yPz8p85TKDzMwfm4PB0NpOsQdECPJ7H7HNjFFgfksAOQfKy+7geksAnwgQa4BWwNgR56wRJc+NICAIrArMvu5eBEIrrD4IzcBThPZPN2K5bVaC87J62SRbYjZ1dNoIFXpUs8JbgxzeLIanymoFHAQisShW4BtsZky7P1FoKIuu/4QAy0AA7JQrcIryEEV9Q78D+QUQIAk9IFLgbf5NXZccZiQL3YFuLIQi8IFFgI3aIfGUAEf0El6IoiqIoiuKfv3U5xct5ETXIAAAAAElFTkSuQmCC",
   bN: "data:image/png;base64,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",
@@ -18,13 +18,12 @@ const pezziBase64 = {
 var moveHistory = [];
 var historyIndex = -1;
 var isProgrammatic = false;
-var currentTurn = 'w'; // Variabile fondamentale per sapere a chi tocca
+var currentTurn = 'w';
 
-// Funzione globale chiamata dai bottoni HTML per cambiare il turno manualmente
+// Funzione globale chiamata dai bottoni HTML per cambiare il turno
 window.cambiaTurno = function(colore) {
     currentTurn = colore;
 
-    // Aggiorna la grafica dei pulsanti
     if (colore === 'w') {
         $('#btn-white').css({ opacity: '1', borderColor: '#007aff' });
         $('#btn-black').css({ opacity: '0.5', borderColor: '#ccc' });
@@ -33,7 +32,6 @@ window.cambiaTurno = function(colore) {
         $('#btn-white').css({ opacity: '0.5', borderColor: '#ccc' });
     }
 
-    // Forza Stockfish a ricalcolare con il nuovo turno
     if (engineRunning) {
         updateEvaluation();
     }
@@ -96,7 +94,7 @@ $('#nextBtn').on('click', function() {
 // 5. CONTROLLI BASE
 $('#startBtn').on('click', function() {
     board.start();
-    cambiaTurno('w'); // Resetta il turno al bianco
+    cambiaTurno('w');
 });
 
 $('#clearBtn').on('click', function() {
@@ -107,18 +105,15 @@ $('#clearBtn').on('click', function() {
 $('#flipBtn').on('click', board.flip);
 
 $('#getFenBtn').on('click', function() {
-    // Genera il FEN completo col turno attuale
-    var fenCompleto = board.fen() + ' ' + currentTurn + ' KQkq - 0 1';
+    var fenCompleto = board.fen() + ' ' + currentTurn + ' ' + getCastlingRights() + ' - 0 1';
     $('#currentFenDisplay').text(fenCompleto);
 });
 
-// 6. CARICA FEN E PUZZLE (Ora legge anche il turno!)
+// 6. CARICA FEN E PUZZLE
 $('#loadFenBtn').on('click', function() {
     var fen = $('#fenInput').val().trim();
     if (fen) {
-        board.position(fen); // Questo carica solo i pezzi (Chessboard.js)
-        
-        // Questo estrae la lettera 'w' o 'b' se presente e accende il bottone corretto!
+        board.position(fen);
         var partiFen = fen.split(' ');
         if (partiFen.length > 1 && (partiFen[1] === 'b' || partiFen[1] === 'w')) {
             cambiaTurno(partiFen[1]);
@@ -132,232 +127,13 @@ $('#loadPuzzleBtn').on('click', function() {
     $('#fenInput').val(fen);
     $('#currentFenDisplay').text(""); 
     
-    // Auto-seleziona il turno corretto in base all'apertura caricata
     var partiFen = fen.split(' ');
     if (partiFen[1] === 'b' || partiFen[1] === 'w') {
         cambiaTurno(partiFen[1]);
     } else {
-        cambiaTurno('w'); // Fallback di sicurezza
+        cambiaTurno('w');
     }
 });
-
-// --- 6.5 FOTOCAMERA E COMPUTER VISION (API) ---
-
-// Quando l'utente preme il bottone viola, simuliamo il click sull'input nascosto
-$('#cameraBtn').on('click', function() {
-    $('#cameraInput').click(); 
-});
-
-// Quando la foto è stata scattata o scelta dalla galleria
-$('#cameraInput').on('change', function(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-
-    // 1. Feedback visivo per l'utente
-    $('#evalValue').text('👀 Analisi intelligenza artificiale...').css('color', '#8e44ad');
-    $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
-
-    // 2. Convertiamo l'immagine in Base64 (il formato che capisce Roboflow)
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async function(e) {
-        // Rimuoviamo l'intestazione iniziale del formato Base64
-        var base64Image = e.target.result.split(',')[1]; 
-
-        try {
-            // 3. Chiamata API a Roboflow (Il "Cervello")
-            const response = await fetch('https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    api_key: '3TMUVBLCFC0fZhkBVdaH',
-                    inputs: {
-                        "image": { "type": "base64", "value": base64Image }
-                        // Rimosso il parametro "classes" errato
-                    }
-                })
-            });
-
-            const result = await response.json();
-            
-            // 4. Invia i dati grezzi di Roboflow al nostro Traduttore Matematico
-            var fenRilevato = generaFenDaRoboflow(result);
-
-            // 5. Carica il FEN sull'interfaccia
-            board.position(fenRilevato);
-            $('#fenInput').val(fenRilevato);
-            
-            // Ripristina il turno al Bianco come standard dopo una nuova scansione
-            cambiaTurno('w');
-            
-            if (engineRunning) {
-                updateEvaluation();
-            } else {
-                $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
-                $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
-            }
-
-        } catch (error) {
-            console.error(error);
-            $('#evalValue').text('Errore scansione').css('color', '#e74c3c');
-            $('#bestMoveDisplay').text('Riprova con una foto più nitida.');
-        }
-
-        // Svuota l'input per foto successive
-        $('#cameraInput').val('');
-    };
-});
-
-// --- IL TRADUTTORE MATEMATICO (Pixel -> FEN) ---
-function generaFenDaRoboflow(apiResult) {
-    // 1. Estraiamo la lista dei pezzi trovati (dipende da come risponde il tuo specifico workflow)
-    // Solitamente Roboflow restituisce un array in result[0].predictions o result.predictions
-    let predictions = [];
-    if (apiResult.predictions) predictions = apiResult.predictions;
-    else if (apiResult[0] && apiResult[0].predictions) predictions = apiResult[0].predictions;
-    
-    // Se non trova pezzi o la foto è mossa, restituisce scacchiera vuota
-    if (!predictions || predictions.length === 0) return "8/8/8/8/8/8/8/8";
-
-    // 2. Trova i bordi esterni della scacchiera guardando dove sono i pezzi più estremi
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    predictions.forEach(p => {
-        if (p.x < minX) minX = p.x;
-        if (p.x > maxX) maxX = p.x;
-        if (p.y < minY) minY = p.y;
-        if (p.y > maxY) maxY = p.y;
-    });
-
-    // 3. Calcola la dimensione di una singola casella
-    let width = maxX - minX;
-    let height = maxY - minY;
-    let squareW = width / 7; 
-    let squareH = height / 7;
-
-    // Crea una griglia logica vuota 8x8
-    let grid = Array(8).fill(null).map(() => Array(8).fill(null));
-
-    // 4. Posiziona ogni pezzo rilevato nella cella giusta
-    predictions.forEach(p => {
-        let col = Math.round((p.x - minX) / squareW);
-        let row = Math.round((p.y - minY) / squareH);
-        
-        // Assicurati che non sfori fuori dalla griglia (0 a 7)
-        col = Math.max(0, Math.min(7, col));
-        row = Math.max(0, Math.min(7, row));
-        
-        // Salva il nome della classe del pezzo (es. "white-king", "wK", "K")
-        grid[row][col] = formattaClassePezzo(p.class); 
-    });
-
-    // 5. Costruisce le righe del FEN
-    let fenRows = [];
-    for (let r = 0; r < 8; r++) {
-        let emptyCount = 0;
-        let rowStr = "";
-        for (let c = 0; c < 8; c++) {
-            let pezzo = grid[r][c];
-            if (pezzo) {
-                if (emptyCount > 0) { rowStr += emptyCount; emptyCount = 0; }
-                rowStr += pezzo;
-            } else {
-                emptyCount++;
-            }
-        }
-        if (emptyCount > 0) rowStr += emptyCount;
-        fenRows.push(rowStr);
-    }
-    
-    return fenRows.join('/');
-}
-
-// Funzione d'appoggio per tradurre le etichette di Roboflow nei codici FEN standard
-function formattaClassePezzo(className) {
-    if (!className) return "";
-    let c = className.toLowerCase();
-    
-    // Converte le classi nei caratteri standard FEN
-    // MAIUSCOLO = Bianco, minuscolo = Nero
-    if (c.includes("white") || c.includes("w")) {
-        if (c.includes("p")) return "P";
-        if (c.includes("n") || c.includes("knight")) return "N";
-        if (c.includes("b") || c.includes("bishop")) return "B";
-        if (c.includes("r") || c.includes("rook")) return "R";
-        if (c.includes("q") || c.includes("queen")) return "Q";
-        if (c.includes("k") || c.includes("king")) return "K";
-    } else {
-        if (c.includes("p")) return "p";
-        if (c.includes("n") || c.includes("knight")) return "n";
-        if (c.includes("b") || c.includes("bishop")) return "b";
-        if (c.includes("r") || c.includes("rook")) return "r";
-        if (c.includes("q") || c.includes("queen")) return "q";
-        if (c.includes("k") || c.includes("king")) return "k";
-    }
-    return "";
-}
-
-    /* =========================================================
-       IL VERO CODICE PER L'API (Da attivare quando avrai un server)
-       =========================================================
-    var apiUrl = 'https://api.iltuoservizio-scacchi.com/upload'; 
-    
-    fetch(apiUrl, {
-        method: 'POST',
-        body: formData,
-        headers: { 'Authorization': 'Bearer LA_TUA_API_KEY_SEGRETA' }
-    })
-    .then(response => response.json())
-    .then(data => {
-        var fenRilevato = data.fen; // Il server ci risponde con il FEN!
-        
-        board.position(fenRilevato);
-        $('#fenInput').val(fenRilevato);
-        
-        // Estraiamo il turno dal FEN se presente
-        var partiFen = fenRilevato.split(' ');
-        if (partiFen[1] === 'b' || partiFen[1] === 'w') {
-            cambiaTurno(partiFen[1]);
-        } else {
-            cambiaTurno('w'); // Default
-        }
-    })
-    .catch(error => {
-        alert('Errore di connessione: ' + error.message);
-        $('#evalValue').text('Errore fotocamera').css('color', '#e74c3c');
-    });
-    ========================================================= */
-
-    // 3. SIMULAZIONE PER IL TEST (Elimina questo blocco quando avrai l'API vera)
-    setTimeout(function() {
-        // Fingiamo che il server abbia visto una Difesa Siciliana
-        var mockFen = 'r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 2 2';
-        
-        // Carichiamo la posizione sulla scacchiera
-        board.position(mockFen);
-        $('#fenInput').val(mockFen);
-        
-        // Regoliamo il turno in automatico leggendo il FEN simulato
-        var partiFen = mockFen.split(' ');
-        if (partiFen[1] === 'b' || partiFen[1] === 'w') {
-            cambiaTurno(partiFen[1]);
-        }
-        
-        // Riavvia l'analisi di Stockfish se era già accesa
-        if (engineRunning) {
-            updateEvaluation();
-        } else {
-            $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
-            $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
-        }
-        
-        // Svuota l'input file per permettere di scattare subito un'altra foto
-        $('#cameraInput').val('');
-        
-    }, 2500); // Finge un'attesa di 2.5 secondi del server
-});
-
 
 // 7. DATABASE LOCALE
 function updateSavedList() {
@@ -380,7 +156,6 @@ function updateSavedList() {
             $('#fenInput').val(item.fen); 
             $('#currentFenDisplay').text(""); 
             
-            // Ripristina il turno quando carichi un salvataggio
             var partiFen = item.fen.split(' ');
             if (partiFen.length > 1 && (partiFen[1] === 'b' || partiFen[1] === 'w')) {
                 cambiaTurno(partiFen[1]);
@@ -404,8 +179,7 @@ $('#savePosBtn').on('click', function() {
     var name = $('#saveNameInput').val().trim();
     if (!name) return alert('Inserisci un nome.');
     
-    // Salva il FEN completo col turno, per non perderlo
-    var fenCompleto = board.fen() + ' ' + currentTurn + ' KQkq - 0 1';
+    var fenCompleto = board.fen() + ' ' + currentTurn + ' ' + getCastlingRights() + ' - 0 1';
     var savedPositions = JSON.parse(localStorage.getItem('chess_positions')) || [];
     savedPositions.push({ name: name, fen: fenCompleto });
     
@@ -416,22 +190,145 @@ $('#savePosBtn').on('click', function() {
 
 updateSavedList();
 
-// --- 9. MOTORE DI ANALISI (STOCKFISH) ---
+// 8. FOTOCAMERA E COMPUTER VISION (API)
+$('#cameraBtn').on('click', function() {
+    $('#cameraInput').click(); 
+});
+
+$('#cameraInput').on('change', function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    $('#evalValue').text('👀 Analisi intelligenza artificiale...').css('color', '#8e44ad');
+    $('#bestMoveDisplay').text('Attendere prego, calcolo in corso...');
+
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async function(e) {
+        var base64Image = e.target.result.split(',')[1]; 
+
+        try {
+            const response = await fetch('https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    api_key: '3TMUVBLCFC0fZhkBVdaH',
+                    inputs: {
+                        "image": { "type": "base64", "value": base64Image }
+                    }
+                })
+            });
+
+            const result = await response.json();
+            
+            var fenRilevato = generaFenDaRoboflow(result);
+
+            board.position(fenRilevato);
+            $('#fenInput').val(fenRilevato);
+            cambiaTurno('w');
+            
+            if (engineRunning) {
+                updateEvaluation();
+            } else {
+                $('#evalValue').text('Scacchiera rilevata!').css('color', '#27ae60');
+                $('#bestMoveDisplay').text('Premi "Analisi" per calcolare.');
+            }
+
+        } catch (error) {
+            console.error(error);
+            $('#evalValue').text('Errore scansione').css('color', '#e74c3c');
+            $('#bestMoveDisplay').text('Riprova con una foto più nitida.');
+        }
+        $('#cameraInput').val('');
+    };
+});
+
+// TRADUTTORE MATEMATICO (Pixel -> FEN)
+function generaFenDaRoboflow(apiResult) {
+    let predictions = [];
+    if (apiResult.predictions) predictions = apiResult.predictions;
+    else if (apiResult[0] && apiResult[0].predictions) predictions = apiResult[0].predictions;
+    
+    if (!predictions || predictions.length === 0) return "8/8/8/8/8/8/8/8";
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    predictions.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+    });
+
+    let width = maxX - minX;
+    let height = maxY - minY;
+    let squareW = width / 7; 
+    let squareH = height / 7;
+
+    let grid = Array(8).fill(null).map(() => Array(8).fill(null));
+
+    predictions.forEach(p => {
+        let col = Math.round((p.x - minX) / squareW);
+        let row = Math.round((p.y - minY) / squareH);
+        
+        col = Math.max(0, Math.min(7, col));
+        row = Math.max(0, Math.min(7, row));
+        
+        grid[row][col] = formattaClassePezzo(p.class); 
+    });
+
+    let fenRows = [];
+    for (let r = 0; r < 8; r++) {
+        let emptyCount = 0;
+        let rowStr = "";
+        for (let c = 0; c < 8; c++) {
+            let pezzo = grid[r][c];
+            if (pezzo) {
+                if (emptyCount > 0) { rowStr += emptyCount; emptyCount = 0; }
+                rowStr += pezzo;
+            } else {
+                emptyCount++;
+            }
+        }
+        if (emptyCount > 0) rowStr += emptyCount;
+        fenRows.push(rowStr);
+    }
+    return fenRows.join('/');
+}
+
+function formattaClassePezzo(className) {
+    if (!className) return "";
+    let c = className.toLowerCase();
+    if (c.includes("white") || c.includes("w")) {
+        if (c.includes("p")) return "P";
+        if (c.includes("n") || c.includes("knight")) return "N";
+        if (c.includes("b") || c.includes("bishop")) return "B";
+        if (c.includes("r") || c.includes("rook")) return "R";
+        if (c.includes("q") || c.includes("queen")) return "Q";
+        if (c.includes("k") || c.includes("king")) return "K";
+    } else {
+        if (c.includes("p")) return "p";
+        if (c.includes("n") || c.includes("knight")) return "n";
+        if (c.includes("b") || c.includes("bishop")) return "b";
+        if (c.includes("r") || c.includes("rook")) return "r";
+        if (c.includes("q") || c.includes("queen")) return "q";
+        if (c.includes("k") || c.includes("king")) return "k";
+    }
+    return "";
+}
+
+// 9. MOTORE DI ANALISI (STOCKFISH)
 var engine = new Worker('stockfish.js');
 var engineRunning = false;
 
 engine.postMessage('uci');
 
-// 1. NUOVA LOGICA: Legge la scacchiera e capisce se l'arrocco è fisicamente possibile
 function getCastlingRights() {
     var pos = board.position();
     var castling = '';
-    // Il bianco può arroccare solo se il Re è in e1 e ci sono le Torri
     if (pos['e1'] === 'wK') {
         if (pos['h1'] === 'wR') castling += 'K';
         if (pos['a1'] === 'wR') castling += 'Q';
     }
-    // Il nero può arroccare solo se il Re è in e8 e ci sono le Torri
     if (pos['e8'] === 'bK') {
         if (pos['h8'] === 'bR') castling += 'k';
         if (pos['a8'] === 'bR') castling += 'q';
@@ -442,43 +339,36 @@ function getCastlingRights() {
 function updateEvaluation() {
     if (!engineRunning) return;
     
-    // Resetta grafica e testo in attesa del calcolo
     $('#evalValue').text('Calcolo in corso...').css('color', '#2c3e50');
     $('#bestMoveDisplay').text('');
     
-    // Costruisce il FEN perfetto, senza allucinazioni
     var castling = getCastlingRights();
     var fullFen = board.fen() + ' ' + currentTurn + ' ' + castling + ' - 0 1'; 
     
     engine.postMessage('stop');
     engine.postMessage('position fen ' + fullFen);
-    
-    // Aumentato da 15 a 18: analisi molto più profonda e "Strong"
     engine.postMessage('go depth 18'); 
 }
 
 engine.onmessage = function(event) {
     var line = event.data;
     
-    // Lettura del vantaggio numerico
     if (line.indexOf('info depth') !== -1 && line.indexOf('score cp') !== -1) {
         var match = line.match(/score cp (-?\d+)/);
         if (match) {
             var rawEval = parseInt(match[1]);
-            if (currentTurn === 'b') rawEval = -rawEval; // Inverte se tocca al nero
+            if (currentTurn === 'b') rawEval = -rawEval; 
             var eval = (rawEval / 100).toFixed(2);
             $('#evalValue').text(eval > 0 ? '+' + eval : eval);
         }
     }
     
-    // Lettura del Matto Forzato o Partita Finita
     if (line.indexOf('info depth') !== -1 && line.indexOf('score mate') !== -1) {
         var mateMatch = line.match(/score mate (-?\d+)/);
         if (mateMatch) {
             var rawMate = parseInt(mateMatch[1]);
             
             if (rawMate === 0) {
-                // IL MOTORE RILEVA MATTO SULLA SCACCHIERA
                 $('#evalValue').text('🏆 SCACCO MATTO!').css('color', '#e74c3c');
             } else {
                 if (currentTurn === 'b') rawMate = -rawMate;
@@ -488,11 +378,9 @@ engine.onmessage = function(event) {
         }
     }
     
-    // Gestione della Mossa Migliore
     if (line.indexOf('bestmove') !== -1) {
         var bestMove = line.split(' ')[1];
         if (bestMove === '(none)') {
-            // Se Stockfish restituisce (none), la partita è terminata (Matto o Stallo)
             $('#bestMoveDisplay').text('Fine partita.');
         } else {
             $('#bestMoveDisplay').text('Migliore: ' + bestMove);
@@ -519,7 +407,7 @@ config.onChange = function(oldPos, newPos) {
     updateEvaluation(); 
 };
 
-// 8. REGISTRAZIONE SERVICE WORKER
+// 10. REGISTRAZIONE SERVICE WORKER
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js');
