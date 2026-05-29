@@ -236,8 +236,14 @@ function processaImmagine(event) {
 
     // Usiamo la nuova funzione di compressione
     comprimiImmagine(file, async function(base64Image) {
-        try {
-            const response = await fetch('https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api', {
+try {
+            // L'URL originale di Roboflow
+            const roboflowUrl = 'https://serverless.roboflow.com/matteos-workspace-vewwt/workflows/general-segmentation-api';
+            
+            // Il "Ponte" (CORS Proxy) per aggirare il blocco di sicurezza di Safari
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(roboflowUrl);
+
+            const response = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -246,15 +252,12 @@ function processaImmagine(event) {
                 })
             });
 
-            // Se il server di Roboflow risponde con un errore (es. limite mensile API raggiunto)
             if (!response.ok) {
                 const errorTesto = await response.text();
-                throw new Error("Errore Server: " + response.status + " " + errorTesto);
+                throw new Error("Errore Server Roboflow: " + response.status + " " + errorTesto);
             }
 
             const result = await response.json();
-            
-            // Log per noi sviluppatori nel caso in cui il formato sia strano
             console.log("Risposta Roboflow: ", result);
 
             var fenRilevato = generaFenDaRoboflow(result);
@@ -262,7 +265,7 @@ function processaImmagine(event) {
             if (fenRilevato === "8/8/8/8/8/8/8/8") {
                 $('#evalValue').text('Nessun pezzo trovato 🤔').css('color', '#e67e22');
                 $('#bestMoveDisplay').text('Avvicinati di più alla scacchiera.');
-                return; // Ci fermiamo qui
+                return; 
             }
 
             board.position(fenRilevato);
@@ -278,7 +281,6 @@ function processaImmagine(event) {
 
         } catch (error) {
             console.error(error);
-            // Ora mostriamo il vero errore in un popup così capiamo cosa succede
             alert("Dettaglio Tecnico: " + error.message);
             $('#evalValue').text('Errore di connessione').css('color', '#e74c3c');
             $('#bestMoveDisplay').text('Impossibile contattare l\'IA.');
